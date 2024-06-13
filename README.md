@@ -1,0 +1,1 @@
+Reproduction of a possible bug in Radzen DropdownGrid component where state is not maintained if the component is dynamically created. Video accompanying this reproduction is here: https://youtu.be/k25OrXuhelc

@@ -1,0 +1,49 @@
+﻿@if (EntityList?.Any() == true)
+{
+    if (SelectedEntities?.Any() == true)
+    {
+        foreach (var entity in SelectedEntities)
+        {
+            <p>@entity</p>
+        }
+    }
+
+    <RadzenCard>
+        <RadzenDropDownDataGrid Responsive="true" @ref="EntityGrid" Chips="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+             Multiple="true" Placeholder="@PlaceholderText" Data="@EntityList" TextProperty="Name" ValueProperty="Name" Density="Density.Compact" AllowRowSelectOnRowClick="true"
+                                TValue="IEnumerable<string>" @bind-Value="@SelectedEntities" Style="width: 40%; max-width:40%;" Change="@OnChange" AllowVirtualization="true">
+            <Columns>
+                <RadzenDropDownDataGridColumn Sortable="true" Width="20px">
+                    <Template Context="data">
+                        @{
+                            var record = (NameCountPair)data;
+                        }
+                        <RadzenCheckBox TriState="false" Value="@(SelectedEntities?.Any(x => x == record.Name) == true)"
+                        TValue="bool" Change=@(args => EntityGrid.SelectItem(data)) @onclick:stopPropagation />
+                    </Template>
+                </RadzenDropDownDataGridColumn>
+                <RadzenDropDownDataGridColumn Property="Name" Title="Name" Width="60px" />
+                <RadzenDropDownDataGridColumn Property="Count" Title="Count" Width="40px" />
+            </Columns>
+        </RadzenDropDownDataGrid>
+    </RadzenCard>
+}      
+
+@code {
+
+    [Parameter, EditorRequired]
+    public IEnumerable<NameCountPair> EntityList { get; set; }
+    [Parameter, EditorRequired]
+    public string EntityName { get; set; }
+    [Parameter]
+    public EventCallback<(string key, IEnumerable<string> values)> SelectedEntitiesChanged { get; set; }
+
+    private RadzenDropDownDataGrid<IEnumerable<string>> EntityGrid;
+    private string PlaceholderText => $"{EntityName}...";
+    private IEnumerable<string> SelectedEntities;
+
+    private async Task OnChange(object value)
+    {
+        await SelectedEntitiesChanged.InvokeAsync((EntityName, SelectedEntities));
+    }
+}
